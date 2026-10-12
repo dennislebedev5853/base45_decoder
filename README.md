@@ -22,3 +22,10 @@ QR codes have an alphanumeric mode that stores a fixed set of 45 characters far 
 The Base45 alphabet includes space, `$`, `%`, `*`, `+`, `-`, `.`, `/`, and `:` after the digits and capital letters. Lowercase letters are not in the alphabet and are rejected on decode rather than silently uppercased. Input lengths that leave a single trailing character are invalid because Base45 groups bytes in pairs (emitting three characters) with an optional lone final byte (emitting two characters); a length with remainder 1 modulo 3 cannot arise from a correct encoder and is rejected.
 
 A two-character chunk decoding above 255, or a three-character chunk decoding above 65535, is also rejected even though such values are representable as base-45 digits, because they could not have been produced by a compliant encoder.
+
+## Design notes
+
+The window stores values eagerly rather than keeping running aggregates. Running
+sums drift with floating point over long streams, and recomputing from a small
+buffer is cheap enough that the drift is not worth the speed.
+
